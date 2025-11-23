@@ -5,7 +5,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-# Note: package-lock.json and yarn.lock should be committed
+.pnp
+.pnp.js
 
 # Environment variables
 .env
@@ -19,15 +20,57 @@ lerna-debug.log*
 dist/
 build/
 *.tsbuildinfo
+dist-ssr/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
 
 # Logs
 logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+.vite/
+.fusebox/
+.parcel-cache/
+
+# Dependency directories
+jspm_packages/
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Serverless directories
+.serverless/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# VSCode test
+.vscode-test
 
 # OS files
 .DS_Store
@@ -50,25 +93,20 @@ Desktop.ini
 .settings/
 *.sublime-project
 *.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Testing
-coverage/
-.nyc_output/
-*.lcov
-.jest/
+# Vercel
+.vercel
 
 # Temporary files
 *.tmp
 *.temp
-.cache/
-.parcel-cache/
-.next/
-.nuxt/
-.vuepress/dist/
 
 # Misc
 *.pem
 *.key
 *.cert
 .certificates/
-
