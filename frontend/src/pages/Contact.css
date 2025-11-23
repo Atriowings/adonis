@@ -1,0 +1,130 @@
+.contact-wrapper {
+  background-color: #f8f9fb;
+}
+.contact-wrapper .contact-box .contact-infos{
+    display:flex;
+    padding:0;
+    margin:0;
+}
+.contact-box {
+  border-radius: 1rem;
+}
+.contact-wrapper .contact-box  h6 {
+    font-size:18px;
+    margin-top:0 !important;
+    margin-bottom:5px;
+    margin-left:5px;
+}
+.contact-wrapper .contact-box  p {
+  margin-left:5px;
+}
+.contact-box-contact p{
+      color: #DBEAFE;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 0rem;
+}
+.contact-wrapper .contact-box .contact-infosContent {
+    margin:0 !important;
+    padding:0 !important;
+}
+.icon-wrap {
+  width: 45px;
+  height: 45px;
+  background-color: #e9f1ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.contact-icon {
+  font-size: 1.4rem;
+}
+
+.text-primary {
+  color: #0d47a1 !important;
+}
+
+.map-frame iframe {
+  width: 100%;
+  height: 350px;
+  border-radius: 12px;
+}
+
+@media (max-width: 992px) {
+  .map-frame {
+    margin-top: 20px;
+  }
+}
+
+
+/* Contact form */
+.contact-formss {
+  display: flex;
+  flex-direction: column;
+  margin-top:10px;
+  gap: 0.9rem;
+  padding:20px;
+}
+
+.contact-formss input {
+  padding: 0.8rem;
+  padding-top:0.75rem;
+  padding-bottom:0.75rem;
+  border: 2px solid #DBEAFE;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  /* outline: none; */
+  transition: border-color 0.3s ease;
+  color:rgb(156 163 175 )
+}
+.contact-formss  label {
+ font-size:0.875;
+ font-weight:600;
+ color:#000;
+}
+.contact-formss input:focus {
+  border-color: #04966b ;
+}
+
+.contact-formss button {
+  /* background-color: #f5a623; */
+  background-color: #04966b;
+  color: #FFFFFF;
+  border: none;
+  padding:14px;
+  font-size:18px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* margin-top:35px; */
+}
+
+.contact-formss button:hover {
+  background-color: #e99510;
+  transform: translateY(-2px);
+}
+
+.contact-box-contact {
+   background: #fff;
+  /* border-radius: 20px; */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-bottom:20px;
+  padding:0;
+
+}
+.contact-box-top {
+background-color: #04966b;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding:20px;
+  margin:0;
+}
+.contact-box-top h2{
+  font-size:24px;
+  color: #FFFFFF;
+  margin-bottom: 0.5rem;
+  font-weight:700;
+}
