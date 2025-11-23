@@ -53,7 +53,8 @@ export default function AdminDashboard() {
   const fetchHeader = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/settings/headerImage`, authCfg);
-      setHeaderImage(res.data?.value || "");
+      // Backend returns the value directly, not wrapped in an object
+      setHeaderImage(res.data || "");
     } catch (err) {
       if (err.response?.status === 401) nav("/admin");
     }
@@ -230,7 +231,7 @@ export default function AdminDashboard() {
           <section>
             <h4>Existing Jobs</h4>
             {jobs.map((j) => (
-              <div key={j._id} className="card">
+              <div key={j.id} className="card">
                 <div className="job-card-info">
                   <div>
                     <strong>{j.title}</strong>
@@ -241,7 +242,7 @@ export default function AdminDashboard() {
                   <button
                     className="btn danger"
                     aria-label="delete"
-                    onClick={() => del(j._id)}
+                    onClick={() => del(j.id)}
                   >
                     Delete
                   </button>
@@ -258,7 +259,7 @@ export default function AdminDashboard() {
               <p>No applications yet</p>
             ) : (
               appliedJobs.map((a) => (
-                <div key={a._id} className="card">
+                <div key={a.id} className="card">
                   <div><strong>Company:</strong> {a.companyName}</div>
                   <div><strong>Name:</strong> {a.name}</div>
                   <div><strong>Mobile:</strong> {a.mobile}</div>
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
               <p>No applications yet</p>
             ) : (
               contAppliedJobs.map((a) => (
-                <div key={a._id} className="card">
+                <div key={a.id} className="card">
                   <div><strong>Name:</strong> {a.name}</div>
                   <div><strong>Email:</strong> {a.email}</div>
                   <div><strong>Mobile:</strong> {a.mobile}</div>

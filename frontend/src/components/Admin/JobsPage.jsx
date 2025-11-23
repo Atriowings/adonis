@@ -23,10 +23,10 @@ export default function JobsPage() {
     <section>
       <h4>Existing Jobs</h4>
       {jobs.map((j) => (
-        <div key={j._id} className="card">
+        <div key={j.id} className="card">
           <div className="job-card-info">
             <div><strong>{j.title}</strong></div>
-            <button className="btn danger" onClick={() => del(j._id)}>Delete</button>
+            <button className="btn danger" onClick={() => del(j.id)}>Delete</button>
           </div>
         </div>
       ))}

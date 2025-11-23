@@ -97,7 +97,7 @@ const [jobs, setJobs] = useState([]);
             <div className="no-jobs">No jobs found</div>
           ) : (
             filteredJobs.map((job, idx) => (
-              <JobCard key={job._id} job={job} index={idx} />
+              <JobCard key={job.id} job={job} index={idx} />
             ))
           )}
         </div>

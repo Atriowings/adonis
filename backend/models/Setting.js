@@ -1,8 +1,50 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const SettingSchema = new mongoose.Schema({
-  key: { type: String, required: true, unique: true },
-  value: { type: mongoose.Schema.Types.Mixed, required: true }
-});
+let Setting;
 
-module.exports = mongoose.model('Setting', SettingSchema);
+const getModel = () => {
+  if (Setting) return Setting;
+  if (!global.sequelize) {
+    throw new Error('Database not initialized. Call connectDB() first.');
+  }
+  
+  Setting = global.sequelize.define('Setting', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    key: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    value: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      get() {
+        const rawValue = this.getDataValue('value');
+        try {
+          return JSON.parse(rawValue);
+        } catch (e) {
+          return rawValue;
+        }
+      },
+      set(value) {
+        this.setDataValue('value', typeof value === 'object' ? JSON.stringify(value) : value);
+      }
+    }
+  }, {
+    timestamps: false,
+    tableName: 'settings'
+  });
+  
+  return Setting;
+};
+
+// Initialize if sequelize is available
+if (global.sequelize) {
+  getModel();
+}
+
+module.exports = getModel;

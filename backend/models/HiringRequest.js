@@ -1,12 +1,50 @@
-// models/HiringRequest.js
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-const hiringRequestSchema = new mongoose.Schema({
-  companyName: { type: String, required: true },
-  name: { type: String, required: true },
-  mobile: { type: String, required: true },
-  designation: { type: String, required: true },
-  email: { type: String, required: true },
-}, { timestamps: true });
+let HiringRequest;
 
-module.exports = mongoose.model('HiringRequest', hiringRequestSchema);
+const getModel = () => {
+  if (HiringRequest) return HiringRequest;
+  if (!global.sequelize) {
+    throw new Error('Database not initialized. Call connectDB() first.');
+  }
+  
+  HiringRequest = global.sequelize.define('HiringRequest', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    companyName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    mobile: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    designation: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    timestamps: true,
+    tableName: 'hiring_requests'
+  });
+  
+  return HiringRequest;
+};
+
+// Initialize if sequelize is available
+if (global.sequelize) {
+  getModel();
+}
+
+module.exports = getModel;

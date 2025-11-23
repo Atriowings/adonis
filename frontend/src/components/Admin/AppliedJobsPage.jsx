@@ -11,7 +11,7 @@ export default function AppliedJobsPage() {
         <p>No applications yet</p>
       ) : (
         appliedJobs.map((a) => (
-          <div key={a._id} className="card">
+          <div key={a.id} className="card">
             <div><strong>Company:</strong> {a.companyName}</div>
             <div><strong>Name:</strong> {a.name}</div>
             <div><strong>Designation:</strong> {a.designation}</div>

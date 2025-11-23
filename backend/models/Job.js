@@ -1,29 +1,46 @@
-// const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 
-// const jobSchema = new mongoose.Schema({
-//   title: { type: String, required: true },            // Job designation/title
-//   company: String,
-//   location: String,
-//   experience: String,
-//   vacancies: { type: Number},
-//   description: String,
-//   applyLink: String, // clicking job opens this external link
-//   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-// }, { timestamps: true });
+let Job;
 
-// module.exports = mongoose.model('Job', jobSchema);
+const getModel = () => {
+  if (Job) return Job;
+  if (!global.sequelize) {
+    throw new Error('Database not initialized. Call connectDB() first.');
+  }
+  
+  Job = global.sequelize.define('Job', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    applyLink: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
+    }
+  }, {
+    timestamps: true,
+    tableName: 'jobs'
+  });
+  
+  return Job;
+};
 
-const mongoose = require('mongoose');
+// Initialize if sequelize is available
+if (global.sequelize) {
+  getModel();
+}
 
-const jobSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  // company: { type: String, required: true },
-  // location: String,
-  // experience: String,
-  // vacancies: { type: Number, default: 1 },
-  // description: String,
-  applyLink: String,
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
-}, { timestamps: true });
-
-module.exports = mongoose.model('Job', jobSchema);
+module.exports = getModel;

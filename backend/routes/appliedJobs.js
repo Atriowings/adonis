@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const AppliedJob = require("../models/AppliedJob");
+const getAppliedJob = require("../models/AppliedJob");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 
@@ -8,11 +8,11 @@ const nodemailer = require('nodemailer');
 // Create (public form submission)
 router.post('/', async (req, res) => {
   try {
+    const AppliedJob = getAppliedJob();
     const { name, email, mobile, message } = req.body;
 
    
-    const newReq = new AppliedJob({ name, email, mobile, message });
-    await newReq.save();
+    const newReq = await AppliedJob.create({ name, email, mobile, message });
 
     const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
 
             <div style="padding: 25px 30px; color: #333333;">
               <p style="font-size: 16px;">Hello Admin,</p>
-              <p style="font-size: 15px;">You’ve received a new job application with the following details:</p>
+              <p style="font-size: 15px;">You've received a new job application with the following details:</p>
 
               <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                 <tr>
@@ -116,7 +116,10 @@ router.post('/', async (req, res) => {
 // Get all (admin only)
 router.get('/', async (req, res) => {
   try {
-    const list = await AppliedJob.find().sort({ createdAt: -1 });
+    const AppliedJob = getAppliedJob();
+    const list = await AppliedJob.findAll({
+      order: [['createdAt', 'DESC']]
+    });
     res.json(list);
   } catch (err) {
     res.status(500).json({ message: err.message });

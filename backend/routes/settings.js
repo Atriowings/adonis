@@ -1,13 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const Setting = require('../models/Setting');
-const auth = require('../middleware/auth'); // create dummy if not exist
+const { Op } = require('sequelize');
+const getSetting = require('../models/Setting');
+const auth = require('../middleware/auth');
 
 // GET /api/settings/:key
 router.get('/:key', async (req, res) => {
   const key = req.params.key;
-  const s = await Setting.findOne({ key });
-  res.json(s ? s.value : null);
+  try {
+    const Setting = getSetting();
+    const s = await Setting.findOne({ where: { key } });
+    res.json(s ? s.value : null);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 });
 
 // POST /api/settings/:key (protected)
@@ -15,14 +21,20 @@ router.post('/:key', auth, async (req, res) => {
   const key = req.params.key;
   const { value } = req.body;
   try {
-    const s = await Setting.findOneAndUpdate(
-      { key },
-      { value },
-      { new: true, upsert: true }
-    );
+    const Setting = getSetting();
+    const [s, created] = await Setting.findOrCreate({
+      where: { key },
+      defaults: { value }
+    });
+    
+    if (!created) {
+      s.value = value;
+      await s.save();
+    }
+    
     res.json(s);
   } catch (err) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

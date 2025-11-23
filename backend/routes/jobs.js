@@ -1,22 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const Job = require('../models/Job');
-const AppliedJob = require('../models/AppliedJob'); // ✅ import AppliedJob model
-const auth = require('../middleware/auth'); // ✅ this is your JWT middleware
+const { Op } = require('sequelize');
+const getJob = require('../models/Job');
+const getAppliedJob = require('../models/AppliedJob');
+const auth = require('../middleware/auth');
 
 // ------------------ GET ALL JOBS ------------------
 router.get('/', async (req, res) => {
   const q = req.query.q || '';
-  const regex = new RegExp(q, 'i');
   try {
-    const jobs = await Job.find({
-      $or: [
-        { title: regex },
-        { company: regex },
-        { location: regex },
-        { description: regex }
+    const Job = getJob();
+    const where = q ? {
+      [Op.or]: [
+        { title: { [Op.iLike]: `%${q}%` } }
       ]
-    }).sort({ createdAt: -1 });
+    } : {};
+    
+    const jobs = await Job.findAll({
+      where,
+      order: [['createdAt', 'DESC']]
+    });
     res.json(jobs);
   } catch (err) {
     console.error(err);
@@ -27,7 +30,8 @@ router.get('/', async (req, res) => {
 // ------------------ GET ONE JOB ------------------
 router.get('/:id', async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id);
+    const Job = getJob();
+    const job = await Job.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
     res.json(job);
   } catch (err) {
@@ -39,24 +43,18 @@ router.get('/:id', async (req, res) => {
 // ------------------ CREATE JOB (Protected) ------------------
 router.post('/', auth, async (req, res) => {
   try {
+    const Job = getJob();
     const { title, applyLink } = req.body;
 
     if (!title?.trim()) return res.status(400).json({ message: 'Title is required' });
-    // if (!company?.trim()) return res.status(400).json({ message: 'Company is required' });
-    if (!req.user?._id) return res.status(401).json({ message: 'Unauthorized' });
+    if (!req.user?.id) return res.status(401).json({ message: 'Unauthorized' });
 
-    const job = new Job({
+    const job = await Job.create({
       title: title.trim(),
-      // company: company.trim(),
-      // location: location?.trim() || '',
-      // experience: experience?.trim() || '',
-      // vacancies: Number(vacancies) || 1,
-      // description: description?.trim() || '',
       applyLink: applyLink?.trim() || '',
-      createdBy: req.user._id
+      createdBy: req.user.id
     });
 
-    await job.save();
     res.status(201).json(job);
 
   } catch (err) {
@@ -68,8 +66,11 @@ router.post('/', auth, async (req, res) => {
 // ------------------ UPDATE JOB (Protected) ------------------
 router.put('/:id', auth, async (req, res) => {
   try {
-    const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const Job = getJob();
+    const job = await Job.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
+    
+    await job.update(req.body);
     res.json(job);
   } catch (err) {
     console.error(err);
@@ -80,8 +81,11 @@ router.put('/:id', auth, async (req, res) => {
 // ------------------ DELETE JOB (Protected) ------------------
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const Job = getJob();
+    const job = await Job.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
+    
+    await job.destroy();
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
     console.error(err);
@@ -92,7 +96,10 @@ router.delete('/:id', auth, async (req, res) => {
 // ------------------ GET ALL APPLIED JOBS (Protected) ------------------
 router.get('/appliedJobs', auth, async (req, res) => {
   try {
-    const apps = await AppliedJob.find().sort({ createdAt: -1 });
+    const AppliedJob = getAppliedJob();
+    const apps = await AppliedJob.findAll({
+      order: [['createdAt', 'DESC']]
+    });
     res.json(apps);
   } catch (err) {
     console.error(err);

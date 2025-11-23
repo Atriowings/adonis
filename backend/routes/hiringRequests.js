@@ -1,9 +1,9 @@
 // routes/hiringRequests.js
 const express = require('express');
 const router = express.Router();
-const HiringRequest = require('../models/HiringRequest');
+const getHiringRequest = require('../models/HiringRequest');
 const nodemailer = require('nodemailer');
-const verifyToken = require('../middleware/auth'); // same as jobs
+const verifyToken = require('../middleware/auth');
 const { Resend } = require('resend');
 // Only initialize Resend if API key is provided (currently not used, code is commented out below)
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -11,10 +11,10 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // Create (public form submission)
 router.post('/', async (req, res) => {
   try {
+    const HiringRequest = getHiringRequest();
     const { companyName, name, mobile, designation, email } = req.body;
 
-    const newReq = new HiringRequest({ companyName, name, mobile, designation, email });
-    await newReq.save();
+    const newReq = await HiringRequest.create({ companyName, name, mobile, designation, email });
 
     const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -118,98 +118,13 @@ router.post('/', async (req, res) => {
 }
 });
 
-// router.post("/", async (req, res) => {
-//   try {
-//     const { companyName, name, mobile, designation, email } = req.body;
-
-//     // Save to MongoDB
-//     const newReq = new HiringRequest({ companyName, name, mobile, designation, email });
-//     await newReq.save();
-
-//     // Styled HTML email
-//     const htmlContent = `
-//       <div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
-//         <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden;">
-          
-//           <!-- Header -->
-//           <div style="background-color: #0078D7; color: white; padding: 20px 30px; text-align: center;">
-//             <h2 style="margin: 0;">New Hiring Request</h2>
-//           </div>
-
-//           <!-- Body -->
-//           <div style="padding: 25px 30px; color: #333;">
-//             <p style="font-size: 16px;">Hello Admin,</p>
-//             <p style="font-size: 15px;">A new hiring request has been submitted with the following details:</p>
-
-//             <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-//               <tr>
-//                 <td style="padding: 8px 0; width: 160px; font-weight: bold;">Company Name:</td>
-//                 <td style="padding: 8px 0;">${companyName}</td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 8px 0; font-weight: bold;">Name:</td>
-//                 <td style="padding: 8px 0;">${name}</td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 8px 0; font-weight: bold;">Mobile:</td>
-//                 <td style="padding: 8px 0;">${mobile}</td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 8px 0; font-weight: bold;">Designation:</td>
-//                 <td style="padding: 8px 0;">${designation}</td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 8px 0; font-weight: bold;">Email:</td>
-//                 <td style="padding: 8px 0;">${email}</td>
-//               </tr>
-//             </table>
-
-//             <p style="margin-top: 30px; font-size: 14px; color: #555;">
-//               Best regards,<br>
-//               <strong>Your Website Team</strong>
-//             </p>
-//           </div>
-
-//           <!-- Footer -->
-//           <div style="background-color: #f0f0f0; padding: 15px 30px; text-align: center; font-size: 13px; color: #777;">
-//             © ${new Date().getFullYear()} Your Company. All rights reserved.
-//           </div>
-//         </div>
-//       </div>
-//     `;
-
-//     // Send email via Resend API
-//     const result = await resend.emails.send({
-//       from: `Your Website <${process.env.RESEND_SENDER}>`, // e.g. "no-reply@yourdomain.com"
-//       to: process.env.RECEIVER_EMAIL, // admin’s email
-//       reply_to: email, // allows direct reply
-//       subject: `New Hiring Request from ${companyName}`,
-//       html: htmlContent,
-//     });
-
-//     console.log("Resend API Response:", result);
-
-//     res.status(200).json({
-//       status_code: 200,
-//       message: "Request saved and email sent successfully",
-//       data: newReq,
-//     });
-//   } catch (err) {
-//     console.error("Error in /api/hiringRequests:", err);
-
-//     res.status(500).json({
-//       status_code: 500,
-//       message: "Server error during sending mail",
-//       error: err.message,
-//     });
-//   }
-// });
-
-
 // Get all (admin only)
 router.get('/', verifyToken, async (req, res) => {
   try {
-    const list = await HiringRequest.find().sort({ createdAt: -1 });
+    const HiringRequest = getHiringRequest();
+    const list = await HiringRequest.findAll({
+      order: [['createdAt', 'DESC']]
+    });
     res.json(list);
   } catch (err) {
     res.status(500).json({ message: err.message });

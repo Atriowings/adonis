@@ -1,18 +1,24 @@
-const AppliedJob = require("../models/AppliedJob");
+const { Op } = require('sequelize');
+const getAppliedJob = require("../models/AppliedJob");
 
 // Get all jobs with optional search
 exports.getJobs = async (req, res) => {
   const q = req.query.q || '';
-  const regex = new RegExp(q, 'i');
   try {
-    const jobs = await AppliedJob.find({
-      $or: [
-        { name: regex },
-        { email: regex },
-        { mobile: regex },
-        { message: regex }
+    const AppliedJob = getAppliedJob();
+    const where = q ? {
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${q}%` } },
+        { email: { [Op.iLike]: `%${q}%` } },
+        { mobile: { [Op.iLike]: `%${q}%` } },
+        { message: { [Op.iLike]: `%${q}%` } }
       ]
-    }).sort({ createdAt: -1 });
+    } : {};
+
+    const jobs = await AppliedJob.findAll({
+      where,
+      order: [['createdAt', 'DESC']]
+    });
     res.json(jobs);
   } catch (err) {
     console.error('Error fetching jobs:', err.message);
@@ -23,7 +29,8 @@ exports.getJobs = async (req, res) => {
 // Get single job by ID
 exports.getJobById = async (req, res) => {
   try {
-    const job = await AppliedJob.findById(req.params.id);
+    const AppliedJob = getAppliedJob();
+    const job = await AppliedJob.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
     res.json(job);
   } catch (err) {
@@ -35,25 +42,20 @@ exports.getJobById = async (req, res) => {
 // Create new job with validation
 exports.createJob = async (req, res) => {
   try {
-    // const { title, applyLink } = req.body;
+    const AppliedJob = getAppliedJob();
+    const { name, email, mobile, message } = req.body;
 
-    // Backend validation
-    // if (!title || !title.trim()) return res.status(400).json({ message: 'Title is required' });
-    // if (!company || !company.trim()) return res.status(400).json({ message: 'Company is required' });
-
-    if (!req.user || !req.user._id) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Unauthorized: Invalid token or user not found' });
     }
 
-    const job = new AppliedJob({
+    const job = await AppliedJob.create({
       name: name.trim(),
       email: email.trim(),
       mobile: mobile?.trim() || '',
-      message: message?.trim() || '',
-      createdBy: req.user._id
+      message: message?.trim() || ''
     });
 
-    await job.save();
     res.status(201).json(job);
   } catch (err) {
     console.error('Error creating job:', err.message);
@@ -64,8 +66,11 @@ exports.createJob = async (req, res) => {
 // Update job
 exports.updateJob = async (req, res) => {
   try {
-    const job = await AppliedJob.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const AppliedJob = getAppliedJob();
+    const job = await AppliedJob.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
+
+    await job.update(req.body);
     res.json(job);
   } catch (err) {
     console.error('Error updating job:', err.message);
@@ -76,12 +81,14 @@ exports.updateJob = async (req, res) => {
 // Delete job
 exports.deleteJob = async (req, res) => {
   try {
-    const job = await AppliedJob.findByIdAndDelete(req.params.id);
+    const AppliedJob = getAppliedJob();
+    const job = await AppliedJob.findByPk(req.params.id);
     if (!job) return res.status(404).json({ message: 'Job not found' });
+
+    await job.destroy();
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
     console.error('Error deleting job:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-

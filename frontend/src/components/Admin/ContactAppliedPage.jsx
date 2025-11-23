@@ -11,7 +11,7 @@ export default function ContactAppliedPage() {
         <p>No contact applications yet</p>
       ) : (
         contAppliedJobs.map((a) => (
-          <div key={a._id} className="card">
+          <div key={a.id} className="card">
             <div><strong>Name:</strong> {a.name}</div>
             <div><strong>Email:</strong> {a.email}</div>
             <div><strong>Mobile:</strong> {a.mobile}</div>

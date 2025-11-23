@@ -72,7 +72,7 @@ export default function Jobs() {
           onChange={(e) => setSearch(e.target.value)}
         />
         <div className="job-list">
-          {filtered.map(job => <JobCard key={job._id} job={job} />)}
+          {filtered.map(job => <JobCard key={job.id} job={job} />)}
         </div>
       </div>
 
